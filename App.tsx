@@ -19,18 +19,20 @@ type post = {
 type MyState = {
   posts : post[]  , 
   pageNo : number , 
-  searchText : string 
+  searchText : string ,
+  isLoading : boolean,
 };
 
 
-export default class Home extends Component<MyProps , MyState> {
+export default class App extends Component<MyProps , MyState> {
 
     constructor(props : MyProps ){
         super(props)
         this.state = {
               posts : [] ,
               pageNo : 0 , 
-              searchText : ''
+              searchText : '',
+              isLoading: true,
         }
       }
  
@@ -53,7 +55,8 @@ export default class Home extends Component<MyProps , MyState> {
           onChangeText={this.onChangeSearch}
           value={this.state.searchText}
           />
-        <FlatList
+        <FlatList 
+        testID={'flatlist1'}
           data={this.state.posts}
           keyExtractor={(item)=> item.objectId}
           renderItem={this.renderItems}
@@ -80,15 +83,27 @@ export default class Home extends Component<MyProps , MyState> {
      })
   }
 
-  getPosts = ()=>{
-    if(this.state.pageNo < 51){
-      fetch(`https://hn.algolia.com/api/v1/search_by_date?tags=story&page=${this.state.pageNo}`)
-     .then(res => res.json())            
-     .then(data=> this.setState({posts : [...this.state.posts, ...data.hits]} , ()=> {console.log(this.state.posts.length)}))
+  async getPosts() {
+    try {
+      const response = await fetch('https://hn.algolia.com/api/v1/search_by_date?tags=story&page=0');
+      const json = await response.json();
+      this.setState({posts: [...this.state.posts, ...json.hits]});
+    } catch (error) {
+      console.warn(error);
+    } finally {
+      this.setState({isLoading: false});
+      
+    }
+  }
+//   getPosts = ()=>{
+//     if(this.state.pageNo < 51){
+//       fetch(`https://hn.algolia.com/api/v1/search_by_date?tags=story&page=${this.state.pageNo}`)
+//      .then(res => res.json())            
+//      .then(data=> this.setState({posts : [...this.state.posts, ...data.hits]} , ()=> {console.log(this.state.posts.length)}))
     
       
-     this.setState({pageNo : this.state.pageNo + 1})
-    }
- }
+//      this.setState({pageNo : this.state.pageNo + 1})
+//     }
+//  }
 
 }

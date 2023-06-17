@@ -20,7 +20,7 @@ export default class CardComponent extends Component<MyProps , MyState> {
     const {title , author , created_at , objectId , url , _tags}  = this.props
    
     return (
-    <Card>
+    <Card testID={'main_card'}>
         <Card.Content>
           <Title>{title}</Title>
           <Paragraph>{author}</Paragraph>
